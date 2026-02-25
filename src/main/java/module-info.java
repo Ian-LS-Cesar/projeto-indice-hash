@@ -8,9 +8,7 @@ module com.grupo8.indicehash {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
-    requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
-
     opens com.grupo8.indicehash to javafx.fxml;
     exports com.grupo8.indicehash;
 }
