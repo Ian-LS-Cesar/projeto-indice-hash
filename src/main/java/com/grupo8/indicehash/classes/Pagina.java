@@ -11,4 +11,18 @@ public class Pagina<T> {
         this.capacidade = capacidade;
         this.registros = new ArrayList<>(capacidade);
     }
+
+    public boolean inserir (T registro){
+        if (isCheio()) return false;
+        registros.add(registro);
+        return true;
+    }
+
+    public boolean isCheio(){
+        return registros.size() >= capacidade;
+    }
+
+    public List<T> getRegistros(){
+        return registros;
+    }
 }
