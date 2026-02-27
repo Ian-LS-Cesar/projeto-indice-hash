@@ -24,7 +24,7 @@ public class GerenciadorArquivo {
     public void carregarArquivo(String caminhoArquivo) throws IOException {
         Set<String> palavrasUnicas = new LinkedHashSet<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(caminhoArquivo))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(caminhoArquivo))) {
             String linha;
             while ((linha = reader.readLine()) != null) {
                 String palavra = linha.trim();
