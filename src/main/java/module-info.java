@@ -9,6 +9,7 @@ module com.grupo8.indicehash {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
+    requires java.desktop;
     opens com.grupo8.indicehash to javafx.fxml;
     exports com.grupo8.indicehash;
 }
