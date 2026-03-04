@@ -106,4 +106,21 @@ public class GerenciadorArquivo {
             System.out.println("Página " + (i + 1) + ": " + pagina.getOcupacao() + "/" + pagina.getCapacidade() + " registros");
         }
     }
+
+    public ResultadoBusca executarTableScan(String palavraAlvo){
+        long inicio = System.nanoTime();
+        int paginasLidas = 0;
+
+        for (int i = 0; i < paginas.size(); i++) {
+            paginasLidas++;
+            Pagina<String> p = paginas.get(i);
+            for (String registro : p.getRegistros()) {
+                if (registro.equalsIgnoreCase(palavraAlvo)) {
+                    long fim = System.nanoTime();
+                    return new ResultadoBusca(true, i, paginasLidas, fim - inicio);
+                }
+            }
+        }
+        return new ResultadoBusca(false, -1, paginasLidas, System.nanoTime() - inicio);
+    }
 }

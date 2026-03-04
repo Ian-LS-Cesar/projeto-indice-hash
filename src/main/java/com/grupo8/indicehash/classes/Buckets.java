@@ -25,6 +25,7 @@ public class Buckets {
     }
 
 
+
     public int fHash(String elemento){
         return 0;
     }
@@ -32,5 +33,27 @@ public class Buckets {
     public void adicionarElemento(String elemento){
         int nBucket = fHash(elemento);
         buckets[nBucket].add(null);
+    }
+
+    public ResultadoBusca buscarPorIndice(String chave){
+        long inicio = System.nanoTime();
+        int indiceBucket = fHash(chave);
+        int custoAcessos = 1;
+
+        LinkedList<Bucket> listaDeOverflow = buckets[indiceBucket];
+
+        for (Bucket b : listaDeOverflow){
+            for (int i = 0; i < b.nTuplas; i++) {
+                if (b.chaveValors[i] != null && b.chaveValors[i].palavra.equals(chave)) {
+                    long fim =  System.nanoTime();
+
+                    return new ResultadoBusca(true, b.chaveValors[i].pagina, custoAcessos + 1, fim - inicio);
+
+                }
+            }
+            custoAcessos++;
+        }
+        return new ResultadoBusca(false, -1, custoAcessos, System.nanoTime() - inicio);
+
     }
 }
