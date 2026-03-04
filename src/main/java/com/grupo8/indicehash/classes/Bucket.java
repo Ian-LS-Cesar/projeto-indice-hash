@@ -1,23 +1,23 @@
 package com.grupo8.indicehash.classes;
 public class Bucket{
-    Tupla[] tuplas;
+    ChaveValor[] chaveValors;
     int nTuplas;
 
 
     public Bucket(int quantidadeTuplas){
-        tuplas = new Tupla[quantidadeTuplas];
+        chaveValors = new ChaveValor[quantidadeTuplas];
         nTuplas = 0;
     }
 
     public boolean estaCheio(){
-        return nTuplas == tuplas.length;
+        return nTuplas == chaveValors.length;
     }
 
-    public void adicionaTupla(Tupla tupla){
+    public void adicionaTupla(ChaveValor chaveValor){
         if(estaCheio()){
             return;
         }
-        tuplas[nTuplas] = tupla;
+        chaveValors[nTuplas] = chaveValor;
         nTuplas++;
     }
 
