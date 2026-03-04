@@ -1,6 +1,7 @@
 package com.grupo8.indicehash.classes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Pagina<T> {
@@ -34,7 +35,8 @@ public class Pagina<T> {
         return registros.size();
     }
 
-    public List<T> getRegistros(){
-        return registros;
+    public List<T> getRegistros() {
+        return Collections.unmodifiableList(registros);
     }
+
 }

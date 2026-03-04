@@ -12,9 +12,10 @@ public class GerenciadorArquivo {
 
     private final int capacidadePorPagina;
     private final List<Pagina<String>> paginas;
+    private int totalPalavrasCarregadas = 0;
 
-    public GerenciadorArquivo(int capacidadePorPagina){
-        if (capacidadePorPagina <= 0){
+    public GerenciadorArquivo(int capacidadePorPagina) {
+        if (capacidadePorPagina <= 0) {
             throw new IllegalArgumentException("Capacidade por página deve ser maior que zero.");
         }
         this.capacidadePorPagina = capacidadePorPagina;
@@ -32,18 +33,25 @@ public class GerenciadorArquivo {
                     palavrasUnicas.add(palavra);
                 }
             }
+        } catch (IOException e) {
+            throw new IOException("Arquivo ilegível ou não encontrado: " + caminhoArquivo, e);
         }
 
+        if (palavrasUnicas.isEmpty()) {
+            throw new IOException("O arquivo está vazio ou não contém palavras válidas.");
+        }
+
+        totalPalavrasCarregadas = palavrasUnicas.size();
         dividirEmPaginas(new ArrayList<>(palavrasUnicas));
     }
 
-    private void dividirEmPaginas(List<String> registros){
+    private void dividirEmPaginas(List<String> registros) {
         paginas.clear();
         Pagina<String> paginaAtual = new Pagina<>(capacidadePorPagina);
         paginas.add(paginaAtual);
 
         for (String registro : registros) {
-            if (!paginaAtual.inserir(registro)){
+            if (!paginaAtual.inserir(registro)) {
                 paginaAtual = new Pagina<>(capacidadePorPagina);
                 paginas.add(paginaAtual);
                 paginaAtual.inserir(registro);
@@ -51,15 +59,47 @@ public class GerenciadorArquivo {
         }
     }
 
-    public List<Pagina<String>> getPaginas(){
+    public List<Pagina<String>> getPaginas() {
         return paginas;
     }
 
-    public int getTotalPaginas(){
+    public int getTotalPaginas() {
         return paginas.size();
     }
 
-    public void exibirResumo(){
+    public int getTotalPalavras() {
+        return totalPalavrasCarregadas;
+    }
+
+    public Pagina<String> getPrimeiraPagina() {
+        if (paginas.isEmpty()) return null;
+        return paginas.get(0);
+    }
+
+    public Pagina<String> getUltimaPagina() {
+        if (paginas.isEmpty()) return null;
+        return paginas.get(paginas.size() - 1);
+    }
+
+    // CA07 — exibe no console primeira e última página com primeiros 5 registros
+    public void exibirPrimeiraEUltimaPagina() {
+        if (paginas.isEmpty()) return;
+
+        exibirPagina(0);
+        if (paginas.size() > 1) {
+            exibirPagina(paginas.size() - 1);
+        }
+    }
+
+    private void exibirPagina(int indice) {
+        Pagina<String> pagina = paginas.get(indice);
+        System.out.println("Página " + (indice + 1) + ":");
+        List<String> registros = pagina.getRegistros();
+        registros.stream().limit(5).forEach(r -> System.out.println("  - " + r));
+    }
+
+    public void exibirResumo() {
+        System.out.println("Total de palavras carregadas: " + getTotalPalavras());
         System.out.println("Total de páginas: " + getTotalPaginas());
         for (int i = 0; i < paginas.size(); i++) {
             Pagina<String> pagina = paginas.get(i);
