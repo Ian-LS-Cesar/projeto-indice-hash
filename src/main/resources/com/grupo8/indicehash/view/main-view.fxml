@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.grupo8.indicehash.controller.MainController">
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Índice Hash Estático - Visualização" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <HBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Arquivo:"/>
+                <TextField fx:id="filePathField" promptText="Caminho do arquivo .txt"/>
+                <Label text="Tamanho da página:"/>
+                <TextField fx:id="pageSizeField" promptText="Registros por página"/>
+                <Button text="Carregar" onAction="#onLoadFile"/>
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <TabPane>
+            <Tab text="Páginas">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label text="Resumo de páginas" style="-fx-font-weight: bold;"/>
+                    <HBox spacing="20">
+                        <VBox>
+                            <Label text="Primeira Página"/>
+                            <ListView fx:id="firstPageList" prefHeight="120"/>
+                        </VBox>
+                        <VBox>
+                            <Label text="Última Página"/>
+                            <ListView fx:id="lastPageList" prefHeight="120"/>
+                        </VBox>
+                    </HBox>
+                    <Label fx:id="totalPagesLabel" text="Total de páginas: -"/>
+                </VBox>
+            </Tab>
+            <Tab text="Buckets">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label text="Buckets e conteúdos" style="-fx-font-weight: bold;"/>
+                    <ListView fx:id="bucketList" prefHeight="180"/>
+                    <Label fx:id="collisionLabel" text="Colisões: -"/>
+                    <Label fx:id="overflowLabel" text="Overflow: -"/>
+                </VBox>
+            </Tab>
+            <Tab text="Busca">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label text="Buscar registro" style="-fx-font-weight: bold;"/>
+                    <HBox spacing="10">
+                        <TextField fx:id="searchField" promptText="Digite a chave para buscar"/>
+                        <Button text="Buscar" onAction="#onSearch"/>
+                    </HBox>
+                    <Label fx:id="searchResultLabel" text="Resultado: -"/>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+    <bottom>
+        <HBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label fx:id="statusLabel" text="Status: Pronto"/>
+        </HBox>
+    </bottom>
+</BorderPane>
