@@ -11,6 +11,7 @@ import java.util.Set;
 public class GerenciadorArquivo {
 
     private final int capacidadePorPagina;
+    public Buckets buckets;
     private final List<Pagina<String>> paginas;
     private int totalPalavrasCarregadas = 0;
 
@@ -20,6 +21,7 @@ public class GerenciadorArquivo {
         }
         this.capacidadePorPagina = capacidadePorPagina;
         this.paginas = new ArrayList<>();
+        //this.buckets = new Buckets(0, 0, null, 0);
     }
 
     public void carregarArquivo(String caminhoArquivo) throws IOException {
@@ -40,8 +42,9 @@ public class GerenciadorArquivo {
         if (palavrasUnicas.isEmpty()) {
             throw new IOException("O arquivo está vazio ou não contém palavras válidas.");
         }
-
         totalPalavrasCarregadas = palavrasUnicas.size();
+        System.out.println("Total de palavras carregadas: "+totalPalavrasCarregadas);
+        buckets = new Buckets(2, totalPalavrasCarregadas, palavrasUnicas, capacidadePorPagina);
         dividirEmPaginas(new ArrayList<>(palavrasUnicas));
     }
 

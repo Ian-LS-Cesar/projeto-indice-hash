@@ -1,94 +1,77 @@
 package com.grupo8.indicehash.classes;
 
 import java.util.LinkedList;
+import java.util.Set;
 
 public class Buckets {
 
     LinkedList<Bucket>[] buckets;
     int qRegistros;
-    int qTuplas; // Representa o FR (Capacidade do bucket)
-    double pColisoes;
-    double pOverFlow;
-    int totalColisoes;
-    int totalOverflows;
-    int tentativasInsercao;
+    int qChaveValor;
+    public int qColisoes;
+    public int qOverFlow; 
+    int qPalavras;
+    int qBuckets;
 
-    public Buckets(int qBuckets, int qTuplas){
-        pColisoes = 0;
-        pOverFlow = 0;
+    public Buckets(int qChaveValor, int qPalavras, Set<String> palavrasUnicas, int tamPagina){
+        qColisoes = 0;
+        qOverFlow = 0;
         qRegistros = 0;
-        totalColisoes = 0;
-        totalOverflows = 0;
-        tentativasInsercao = 0;
+        this.qPalavras = qPalavras;
+        this.qBuckets = qPalavras / qChaveValor;
         buckets = new LinkedList[qBuckets];
-        this.qTuplas = qTuplas;
+        this.qChaveValor = qChaveValor;
 
-        // Inicializa o array com uma lista encadeada vazia em cada posição
-        // e já adiciona o primeiro bucket (primário) em cada lista
         for(int i = 0; i < buckets.length; i++){
             buckets[i] = new LinkedList<Bucket>();
-            buckets[i].add(new Bucket(qTuplas));
+            buckets[i].add(new Bucket(qChaveValor));
+        }
+
+        System.out.println("Quantidade de buckets: "+buckets.length);        
+        for(String palavra : palavrasUnicas){
+            int qualBucket = fHash(palavra);
+            LinkedList<Bucket> listaAtual = buckets[qualBucket];
+            int tamLista = listaAtual.size();
+            int contador = 0;
+            boolean inserido = false;
+
+            for (Bucket bucket : listaAtual) {
+                contador++;
+                
+                if (!bucket.estaCheio()) {
+                    inserido = true;
+                    int qualPagina =  qRegistros/tamPagina;
+                    bucket.adicionaChaveValor(new ChaveValor(palavra, qualPagina));
+                    qRegistros++;
+                    break;
+                }
+
+                if(contador == 1){
+                    qColisoes++;
+                }
+            }
+
+            if(!inserido){
+                Bucket novoBucket = new Bucket(2);
+                int qualPagina =  qRegistros/tamPagina;
+                novoBucket.adicionaChaveValor(new ChaveValor(palavra, qualPagina));
+                
+                listaAtual.addLast(novoBucket);
+                qOverFlow++;
+                qRegistros++;
+            }
         }
     }
 
-    // A função hash deve ser projetada pela equipe
+
+
     public int fHash(String elemento){
-        return 0; // Temporário. Você precisará implementar a lógica real aqui.
+        return (elemento.hashCode() & 0x7fffffff) % (qBuckets + 1);
     }
 
-    public void adicionarElemento(String elemento, int pagina){
+    public void adicionarElemento(String elemento){
         int nBucket = fHash(elemento);
-        tentativasInsercao++;
-
-        LinkedList<Bucket> listaDeOverflow = buckets[nBucket];
-
-        // Pega o último bucket da cadeia para verificar se ainda tem espaço
-        Bucket bucketAtual = listaDeOverflow.getLast();
-
-        // Verifica se o bucket atual já está cheio (atingiu o limite qTuplas/FR)
-        if (bucketAtual.nTuplas >= qTuplas) {
-            // Conta a colisão apenas quando o bucket enche, conforme a regra de negócio
-            totalColisoes++;
-
-            // O bucket excedeu a capacidade, gerando um overflow
-            totalOverflows++;
-
-            // Cria um novo bucket de overflow, adiciona na lista e o define como o atual
-            bucketAtual = new Bucket(qTuplas);
-            listaDeOverflow.add(bucketAtual);
-        }
-
-        // Insere a chave de busca e o endereço da página na primeira posição vazia do bucket
-        // Nota: Certifique-se de que a classe se chama ChaveValor no seu projeto
-        bucketAtual.chaveValors[bucketAtual.nTuplas] = new ChaveValor(elemento, pagina);
-
-        // Incrementa a quantidade de tuplas ocupadas neste bucket
-        bucketAtual.nTuplas++;
-
-        // Incrementa o total geral de registros inseridos no índice
-        qRegistros++;
-
-        // Recalcula as taxas de colisão e overflow a cada inserção
-        calcularTaxas();
-    }
-
-    private void calcularTaxas(){
-        // Calcula a porcentagem com base no total de inserções tentadas
-        pColisoes = tentativasInsercao > 0 ? (double) totalColisoes / tentativasInsercao * 100 : 0;
-        pOverFlow = tentativasInsercao > 0 ? (double) totalOverflows / tentativasInsercao * 100 : 0;
-    }
-
-    public double getTaxaColisoes(){
-        return pColisoes;
-    }
-
-    public double getTaxaOverflows(){
-        return pOverFlow;
-    }
-
-    public void exibirTaxas(){
-        System.out.printf("Taxa de Colisões: %.2f%%\n", pColisoes);
-        System.out.printf("Taxa de Overflows: %.2f%%\n", pOverFlow);
+        buckets[nBucket].add(null);
     }
 
     public ResultadoBusca buscarPorIndice(String chave){
@@ -99,17 +82,16 @@ public class Buckets {
         LinkedList<Bucket> listaDeOverflow = buckets[indiceBucket];
 
         for (Bucket b : listaDeOverflow){
-            for (int i = 0; i < b.nTuplas; i++) {
+            for (int i = 0; i < b.nchaveValor; i++) {
                 if (b.chaveValors[i] != null && b.chaveValors[i].palavra.equals(chave)) {
                     long fim =  System.nanoTime();
-                    // Retorna o resultado com a página onde o registro está
-                    return new ResultadoBusca(true, b.chaveValors[i].pagina, custoAcessos, fim - inicio);
+                    return new ResultadoBusca(true, b.chaveValors[i].pagina, custoAcessos + 1, fim - inicio);
+
                 }
             }
-            // Se não encontrou neste bucket e vai para o próximo na lista de overflow, o custo de acesso aumenta
             custoAcessos++;
         }
-        // Se percorreu tudo e não achou
         return new ResultadoBusca(false, -1, custoAcessos, System.nanoTime() - inicio);
+
     }
 }
