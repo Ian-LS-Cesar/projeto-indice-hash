@@ -62,9 +62,10 @@
                     <Label text="Buscar registro" style="-fx-font-weight: bold;"/>
                     <HBox spacing="10">
                         <TextField fx:id="searchField" promptText="Digite a chave para buscar"/>
-                        <Button text="Buscar" onAction="#onSearch"/>
+                        <Button text="Buscar por Índice" onAction="#onSearch"/>
+                        <Button text="Table Scan" onAction="#onTableScan"/>
                     </HBox>
-                    <Label fx:id="searchResultLabel" text="Resultado: -"/>
+                    <Label fx:id="searchResultLabel" text="Resultado: -" wrapText="true"/>
                 </VBox>
             </Tab>
         </TabPane>
