@@ -17,6 +17,6 @@ public class ResultadoBusca {
     public boolean isEncontrado() { return encontrado; }
     public int getPaginaDestino() { return numPaginaDestino; }
     public int getCustoLeitura() { return custoPaginas; }
-    public long getTempoExecucao() { return getTempoExecucao(); }
+    public long getTempoExecucao() { return tempoExecucao; }
 
 }

@@ -7,11 +7,11 @@ public class Buckets {
 
     LinkedList<Bucket>[] buckets;
     int qRegistros;
-    int qChaveValor;
+    public int qChaveValor;
     public int qColisoes;
     public int qOverFlow; 
     int qPalavras;
-    int qBuckets;
+    public int qBuckets;
 
     public Buckets(int qChaveValor, int qPalavras, Set<String> palavrasUnicas, int tamPagina){
         qColisoes = 0;

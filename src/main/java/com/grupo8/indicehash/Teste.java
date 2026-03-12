@@ -10,7 +10,7 @@ public class Teste {
         System.out.println("teste");
         try {
             GerenciadorArquivo gerenciador = new GerenciadorArquivo(5);
-            gerenciador.carregarArquivo("/home/luizrct/Downloads/words.txt");
+            gerenciador.carregarArquivo("words.txt");
             System.out.println(gerenciador.buckets.qColisoes);
             System.out.println(gerenciador.buckets.qOverFlow);
         } catch (IOException e) {
