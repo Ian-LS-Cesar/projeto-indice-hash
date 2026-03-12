@@ -1,13 +1,16 @@
 package com.grupo8.indicehash.controller;
 
 import com.grupo8.indicehash.classes.GerenciadorArquivo;
+import com.grupo8.indicehash.classes.RelatorioComparativoBusca;
 import com.grupo8.indicehash.classes.ResultadoBusca;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 
 /**
- * Controlador principal da interface gráfica.
- * Gerencia ações do usuário e exibe dados das estruturas.
+ * Controlador principal da interface grafica.
+ * Gerencia acoes do usuario e exibe dados das estruturas.
  */
 public class MainController {
     @FXML private TextField filePathField;
@@ -24,9 +27,6 @@ public class MainController {
 
     private GerenciadorArquivo gerenciador;
 
-    /**
-     * Ação ao clicar em "Carregar". Valida entradas, lê arquivo e exibe dados reais.
-     */
     @FXML
     protected void onLoadFile() {
         String filePath = filePathField.getText().trim();
@@ -40,11 +40,11 @@ public class MainController {
         try {
             pageSize = Integer.parseInt(pageSizeStr);
             if (pageSize <= 0) {
-                statusLabel.setText("Status: Tamanho da página deve ser > 0.");
+                statusLabel.setText("Status: Tamanho da pagina deve ser > 0.");
                 return;
             }
         } catch (NumberFormatException e) {
-            statusLabel.setText("Status: Tamanho da página inválido.");
+            statusLabel.setText("Status: Tamanho da pagina invalido.");
             return;
         }
 
@@ -52,10 +52,10 @@ public class MainController {
             gerenciador = new GerenciadorArquivo(pageSize);
             gerenciador.carregarArquivo(filePath);
 
-            statusLabel.setText("Status: Arquivo carregado com sucesso. | Total de palavras: " + gerenciador.getTotalPalavras());
-            totalPagesLabel.setText("Total de páginas: " + gerenciador.getTotalPaginas());
+            statusLabel.setText("Status: Arquivo carregado com sucesso. | Total de palavras: "
+                    + gerenciador.getTotalPalavras());
+            totalPagesLabel.setText("Total de paginas: " + gerenciador.getTotalPaginas());
 
-            // Exibir primeiras 5 da primeira página
             var primeira = gerenciador.getPrimeiraPagina();
             if (primeira != null) {
                 firstPageList.getItems().setAll(primeira.getRegistros().stream().limit(5).toList());
@@ -63,7 +63,6 @@ public class MainController {
                 firstPageList.getItems().clear();
             }
 
-            // Exibir últimas 5 da última página
             var ultima = gerenciador.getUltimaPagina();
             if (ultima != null) {
                 lastPageList.getItems().setAll(ultima.getRegistros().stream().limit(5).toList());
@@ -71,7 +70,6 @@ public class MainController {
                 lastPageList.getItems().clear();
             }
 
-            // Exibir colisões e overflows reais
             int colisoes = gerenciador.buckets.qColisoes;
             int overflows = gerenciador.buckets.qOverFlow;
             int totalBuckets = gerenciador.buckets.qBuckets;
@@ -80,29 +78,24 @@ public class MainController {
             double taxaColisao = totalPalavras > 0 ? (colisoes * 100.0 / totalPalavras) : 0;
             double taxaOverflow = totalPalavras > 0 ? (overflows * 100.0 / totalPalavras) : 0;
 
-            collisionLabel.setText(String.format("Colisões: %d (%.1f%%)", colisoes, taxaColisao));
+            collisionLabel.setText(String.format("Colisoes: %d (%.1f%%)", colisoes, taxaColisao));
             overflowLabel.setText(String.format("Overflow: %d (%.1f%%)", overflows, taxaOverflow));
 
-            // Exibir resumo dos buckets
             bucketList.getItems().clear();
             bucketList.getItems().add("Total de buckets: " + totalBuckets);
             bucketList.getItems().add("Chaves por bucket: " + gerenciador.buckets.qChaveValor);
-
         } catch (Exception e) {
             statusLabel.setText("Erro ao carregar arquivo: " + e.getMessage());
-            totalPagesLabel.setText("Total de páginas: -");
+            totalPagesLabel.setText("Total de paginas: -");
             firstPageList.getItems().clear();
             lastPageList.getItems().clear();
             bucketList.getItems().clear();
-            collisionLabel.setText("Colisões: -");
+            collisionLabel.setText("Colisoes: -");
             overflowLabel.setText("Overflow: -");
             gerenciador = null;
         }
     }
 
-    /**
-     * Ação ao clicar em "Buscar". Usa busca por índice hash real.
-     */
     @FXML
     protected void onSearch() {
         String key = searchField.getText().trim();
@@ -115,27 +108,11 @@ public class MainController {
             return;
         }
 
-        ResultadoBusca resultadoIndice = gerenciador.buckets.buscarPorIndice(key);
-        ResultadoBusca resultadoScan = gerenciador.executarTableScan(key);
-
-        String status = resultadoIndice.isEncontrado()
-                ? "Encontrado na página " + resultadoIndice.getPaginaDestino()
-                : "Não encontrado";
-
-        searchResultLabel.setText(String.format(
-                "[Índice] %s | Custo: %d acessos | Tempo: %.3f ms%n" +
-                        "[Table Scan] Custo: %d acessos | Tempo: %.3f ms",
-                status,
-                resultadoIndice.getCustoLeitura(),
-                resultadoIndice.getTempoExecucao() / 1_000_000.0,
-                resultadoScan.getCustoLeitura(),
-                resultadoScan.getTempoExecucao() / 1_000_000.0
-        ));
+        RelatorioComparativoBusca relatorioComparativo =
+                new RelatorioComparativoBusca(gerenciador.buckets, gerenciador);
+        searchResultLabel.setText(relatorioComparativo.comparar(key));
     }
 
-    /**
-     * Ação ao clicar em "Table Scan". Executa varredura completa e exibe custo/tempo.
-     */
     @FXML
     protected void onTableScan() {
         String key = searchField.getText().trim();
@@ -151,11 +128,11 @@ public class MainController {
         ResultadoBusca resultado = gerenciador.executarTableScan(key);
 
         String status = resultado.isEncontrado()
-                ? "Encontrado na página " + resultado.getPaginaDestino()
-                : "Não encontrado";
+                ? "Encontrado na pagina " + resultado.getPaginaDestino()
+                : "Nao encontrado";
 
         searchResultLabel.setText(String.format(
-                "[Table Scan] %s | Custo: %d páginas lidas | Tempo: %.3f ms",
+                "[Table Scan] %s | Custo: %d paginas lidas | Tempo: %.3f ms",
                 status,
                 resultado.getCustoLeitura(),
                 resultado.getTempoExecucao() / 1_000_000.0
